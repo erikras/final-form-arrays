@@ -12,7 +12,7 @@ const removeBatch: Mutator<any> = (
   { changeValue }: Tools<any>
 ) => {
   const sortedIndexes: number[] = [...indexes]
-  sortedIndexes.sort()
+  sortedIndexes.sort((a, b) => a - b)
   // remove duplicates
   for (let i = 0; i < sortedIndexes.length; i++) {
     if (i > 0 && sortedIndexes[i] === sortedIndexes[i - 1]) {
