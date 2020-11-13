@@ -84,7 +84,7 @@ describe('insert', () => {
   })
 
   it('should increment other field data from the specified index', () => {
-    const array = ['a', 'b', 'c', 'd']
+    const array = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']
     // implementation of changeValue taken directly from Final Form
     const changeValue = (state, name, mutate) => {
       const before = getIn(state.formState.values, name)
@@ -111,15 +111,15 @@ describe('insert', () => {
           touched: true,
           error: 'B Error'
         },
-        'foo[2]': {
-          name: 'foo[2]',
+        'foo[9]': {
+          name: 'foo[9]',
           touched: true,
-          error: 'C Error'
+          error: 'J Error'
         },
-        'foo[3]': {
-          name: 'foo[3]',
+        'foo[10]': {
+          name: 'foo[10]',
           touched: false,
-          error: 'D Error'
+          error: 'K Error'
         }
       }
     }
@@ -132,7 +132,20 @@ describe('insert', () => {
     expect(state).toEqual({
       formState: {
         values: {
-          foo: ['a', 'NEWVALUE', 'b', 'c', 'd']
+          foo: [
+            'a',
+            'NEWVALUE',
+            'b',
+            'c',
+            'd',
+            'e',
+            'f',
+            'g',
+            'h',
+            'i',
+            'j',
+            'k'
+          ]
         }
       },
       fields: {
@@ -147,16 +160,16 @@ describe('insert', () => {
           error: 'B Error',
           lastFieldState: undefined
         },
-        'foo[3]': {
-          name: 'foo[3]',
+        'foo[10]': {
+          name: 'foo[10]',
           touched: true,
-          error: 'C Error',
+          error: 'J Error',
           lastFieldState: undefined
         },
-        'foo[4]': {
-          name: 'foo[4]',
+        'foo[11]': {
+          name: 'foo[11]',
           touched: false,
-          error: 'D Error',
+          error: 'K Error',
           lastFieldState: undefined
         }
       }

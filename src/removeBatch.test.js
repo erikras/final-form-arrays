@@ -187,11 +187,51 @@ describe('removeBatch', () => {
     expect(result).toBeUndefined()
   })
 
-  it('should return the original array if no indexes are specified to be removed', () => {
-    const op = getOp([])
-    const result = op(['a', 'b', 'c', 'd', 'e'])
-    expect(Array.isArray(result)).toBe(true)
-    expect(result).toEqual(['a', 'b', 'c', 'd', 'e'])
+  it('should keep the original state if no indexes are specified to be removed', () => {
+    const array = ['a', 'b', 'c', 'd', 'e']
+    function blur0() {}
+    function change0() {}
+    function focus0() {}
+    const state = {
+      formState: {
+        values: {
+          foo: array
+        }
+      },
+      fields: {
+        'foo[0]': {
+          name: 'foo[0]',
+          blur: blur0,
+          change: change0,
+          focus: focus0,
+          touched: true,
+          error: 'A Error'
+        }
+      }
+    }
+    const changeValue = jest.fn()
+    const returnValue = removeBatch(['foo[0]', []], state, {
+      changeValue
+    })
+    expect(returnValue).toEqual([])
+    expect(state.formState.values.foo).toBe(array) // no change
+    expect(state).toEqual({
+      formState: {
+        values: {
+          foo: array
+        }
+      },
+      fields: {
+        'foo[0]': {
+          name: 'foo[0]',
+          blur: blur0,
+          change: change0,
+          focus: focus0,
+          touched: true,
+          error: 'A Error'
+        }
+      }
+    })
   })
 
   it('should remove the values at the specified indexes', () => {
@@ -239,6 +279,14 @@ describe('removeBatch', () => {
         }
       },
       fields: {
+        'foo[4]': {
+          name: 'foo[4]',
+          blur: blur4,
+          change: change4,
+          focus: focus4,
+          touched: true,
+          error: 'E Error'
+        },
         'foo[0]': {
           name: 'foo[0]',
           blur: blur0,
@@ -271,31 +319,32 @@ describe('removeBatch', () => {
           touched: false,
           error: 'D Error'
         },
-        'foo[4]': {
-          name: 'foo[4]',
-          blur: blur4,
-          change: change4,
-          focus: focus4,
-          touched: true,
-          error: 'E Error'
-        },
         anotherField: {
           name: 'anotherField',
           touched: false
         }
       }
     }
-    const returnValue = removeBatch(['foo', [1, 2]], state, { changeValue })
-    expect(returnValue).toEqual(['b', 'c'])
+    const returnValue = removeBatch(['foo', [1, 3]], state, { changeValue })
+    expect(returnValue).toEqual(['b', 'd'])
     expect(state.formState.values.foo).not.toBe(array) // copied
     expect(state).toEqual({
       formState: {
         values: {
-          foo: ['a', 'd', 'e'],
+          foo: ['a', 'c', 'e'],
           anotherField: 42
         }
       },
       fields: {
+        'foo[2]': {
+          name: 'foo[2]',
+          blur: blur2,
+          change: change2,
+          focus: focus2,
+          touched: true,
+          error: 'E Error',
+          lastFieldState: undefined
+        },
         'foo[0]': {
           name: 'foo[0]',
           blur: blur0,
@@ -310,17 +359,8 @@ describe('removeBatch', () => {
           blur: blur1,
           change: change1,
           focus: focus1,
-          touched: false,
-          error: 'D Error',
-          lastFieldState: undefined
-        },
-        'foo[2]': {
-          name: 'foo[2]',
-          blur: blur2,
-          change: change2,
-          focus: focus2,
           touched: true,
-          error: 'E Error',
+          error: 'C Error',
           lastFieldState: undefined
         },
         anotherField: {
@@ -362,6 +402,14 @@ describe('removeBatch', () => {
         }
       },
       fields: {
+        'foo[0][4]': {
+          name: 'foo[0][4]',
+          blur: blur4,
+          change: change4,
+          focus: focus4,
+          touched: true,
+          error: 'E Error'
+        },
         'foo[0][0]': {
           name: 'foo[0][0]',
           blur: blur0,
@@ -394,33 +442,34 @@ describe('removeBatch', () => {
           touched: false,
           error: 'D Error'
         },
-        'foo[0][4]': {
-          name: 'foo[0][4]',
-          blur: blur4,
-          change: change4,
-          focus: focus4,
-          touched: true,
-          error: 'E Error'
-        },
         anotherField: {
           name: 'anotherField',
           touched: false
         }
       }
     }
-    const returnValue = removeBatch(['foo[0]', [1, 2]], state, {
+    const returnValue = removeBatch(['foo[0]', [1, 3]], state, {
       changeValue
     })
-    expect(returnValue).toEqual(['b', 'c'])
+    expect(returnValue).toEqual(['b', 'd'])
     expect(state.formState.values.foo).not.toBe(array) // copied
     expect(state).toEqual({
       formState: {
         values: {
-          foo: [['a', 'd', 'e']],
+          foo: [['a', 'c', 'e']],
           anotherField: 42
         }
       },
       fields: {
+        'foo[0][2]': {
+          name: 'foo[0][2]',
+          blur: blur2,
+          change: change2,
+          focus: focus2,
+          touched: true,
+          error: 'E Error',
+          lastFieldState: undefined
+        },
         'foo[0][0]': {
           name: 'foo[0][0]',
           blur: blur0,
@@ -435,17 +484,8 @@ describe('removeBatch', () => {
           blur: blur1,
           change: change1,
           focus: focus1,
-          touched: false,
-          error: 'D Error',
-          lastFieldState: undefined
-        },
-        'foo[0][2]': {
-          name: 'foo[0][2]',
-          blur: blur2,
-          change: change2,
-          focus: focus2,
           touched: true,
-          error: 'E Error',
+          error: 'C Error',
           lastFieldState: undefined
         },
         anotherField: {

@@ -1,22 +1,46 @@
 // @flow
 import type { MutableState, Mutator, Tools } from 'final-form'
-import moveFieldState from './moveFieldState'
+import copyField from './copyField'
 import { escapeRegexTokens } from './utils'
 
-const countBelow = (array, value) =>
-  array.reduce((count, item) => (item < value ? count + 1 : count), 0)
+const binarySearch = (list: number[], value: number): number => {
+  // This algorithm assumes the items in list is unique
+  let first = 0
+  let last = list.length - 1
+  let middle = 0
+
+  while (first <= last) {
+    middle = Math.floor((first + last) / 2)
+    if (list[middle] === value) {
+      return middle
+    }
+
+    if (list[middle] > value) {
+      last = middle - 1
+    } else {
+      first = middle + 1
+    }
+  }
+
+  return ~first
+}
 
 const removeBatch: Mutator<any> = (
   [name, indexes]: any[],
   state: MutableState<any>,
   { changeValue }: Tools<any>
 ) => {
+  if (indexes.length === 0) {
+    return []
+  }
+
   const sortedIndexes: number[] = [...indexes]
   sortedIndexes.sort()
-  // remove duplicates
-  for (let i = 0; i < sortedIndexes.length; i++) {
-    if (i > 0 && sortedIndexes[i] === sortedIndexes[i - 1]) {
-      sortedIndexes.splice(i--, 1)
+
+  // Remove duplicates
+  for (let i = sortedIndexes.length - 1; i > 0; i -= 1) {
+    if (sortedIndexes[i] === sortedIndexes[i - 1]) {
+      sortedIndexes.splice(i, 1)
     }
   }
 
@@ -24,39 +48,52 @@ const removeBatch: Mutator<any> = (
   changeValue(state, name, (array: ?(any[])): ?(any[]) => {
     // use original order of indexes for return value
     returnValue = indexes.map(index => array && array[index])
-    if (!array || !sortedIndexes.length) {
+
+    if (!array) {
       return array
     }
 
     const copy = [...array]
-    const removed = []
-    sortedIndexes.forEach((index: number) => {
-      copy.splice(index - removed.length, 1)
-      removed.push(array && array[index])
-    })
-    return copy
+    for (let i = sortedIndexes.length - 1; i >= 0; i -= 1) {
+      const index = sortedIndexes[i]
+      copy.splice(index, 1)
+    }
+
+    return copy.length > 0
+      ? copy
+      : undefined
   })
 
   // now we have to remove any subfields for our indexes,
   // and decrement all higher indexes.
   const pattern = new RegExp(`^${escapeRegexTokens(name)}\\[(\\d+)\\](.*)`)
-  const newState = { ...state, fields: {} }
+  const newFields = {}
   Object.keys(state.fields).forEach(key => {
     const tokens = pattern.exec(key)
     if (tokens) {
       const fieldIndex = Number(tokens[1])
-      if (!~sortedIndexes.indexOf(fieldIndex)) {
-        // not one of the removed indexes
-        // shift all higher ones down
-        const decrementedKey = `${name}[${fieldIndex -
-          countBelow(sortedIndexes, fieldIndex)}]${tokens[2]}`
-        moveFieldState(newState, state.fields[key], decrementedKey, state)
+      const indexOfFieldIndex = binarySearch(sortedIndexes, fieldIndex)
+      if (indexOfFieldIndex >= 0) {
+        // One of the removed indices
+        return
       }
-    } else {
-      newState.fields[key] = state.fields[key]
+
+      if (fieldIndex > sortedIndexes[0]) {
+        // Shift all higher indices down
+        const decrementedKey = `${name}[${fieldIndex - ~indexOfFieldIndex}]${
+          tokens[2]
+        }`
+        copyField(state.fields, key, newFields, decrementedKey)
+        return
+      }
     }
+
+    // Keep this field that does not match the name,
+    // or has index smaller than what is being removed
+    newFields[key] = state.fields[key]
   })
-  state.fields = newState.fields
+
+  state.fields = newFields
   return returnValue
 }
 

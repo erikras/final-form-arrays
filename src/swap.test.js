@@ -93,10 +93,10 @@ describe('swap', () => {
         }
       },
       fields: {
-        'foo[0]': {
-          name: 'foo[0]',
-          touched: false,
-          error: 'Error C',
+        'foo[2]': {
+          name: 'foo[2]',
+          touched: true,
+          error: 'Error A',
           lastFieldState: undefined
         },
         'foo[1]': {
@@ -105,10 +105,10 @@ describe('swap', () => {
           error: 'Error B',
           lastFieldState: 'anything' // unchanged
         },
-        'foo[2]': {
-          name: 'foo[2]',
-          touched: true,
-          error: 'Error A',
+        'foo[0]': {
+          name: 'foo[0]',
+          touched: false,
+          error: 'Error C',
           lastFieldState: undefined
         },
         'foo[3]': {
@@ -215,36 +215,6 @@ describe('swap', () => {
         }
       },
       fields: {
-        'foo[0].dog': {
-          name: 'foo[0].dog',
-          touched: true,
-          error: 'Error C Dog',
-          lastFieldState: undefined
-        },
-        'foo[0].cat': {
-          name: 'foo[0].cat',
-          touched: false,
-          error: 'Error C Cat',
-          lastFieldState: undefined
-        },
-        'foo[0].axe': {
-          name: 'foo[0].axe',
-          touched: false,
-          error: 'Error C Axe',
-          lastFieldState: undefined
-        },
-        'foo[1].dog': {
-          name: 'foo[1].dog',
-          touched: true,
-          error: 'Error B Dog',
-          lastFieldState: 'anything' // unchanged
-        },
-        'foo[1].cat': {
-          name: 'foo[1].cat',
-          touched: true,
-          error: 'Error B Cat',
-          lastFieldState: 'anything' // unchanged
-        },
         'foo[2].dog': {
           name: 'foo[2].dog',
           touched: true,
@@ -261,6 +231,36 @@ describe('swap', () => {
           name: 'foo[2].rock',
           touched: false,
           error: 'Error A Rock',
+          lastFieldState: undefined
+        },
+        'foo[1].dog': {
+          name: 'foo[1].dog',
+          touched: true,
+          error: 'Error B Dog',
+          lastFieldState: 'anything' // unchanged
+        },
+        'foo[1].cat': {
+          name: 'foo[1].cat',
+          touched: true,
+          error: 'Error B Cat',
+          lastFieldState: 'anything' // unchanged
+        },
+        'foo[0].dog': {
+          name: 'foo[0].dog',
+          touched: true,
+          error: 'Error C Dog',
+          lastFieldState: undefined
+        },
+        'foo[0].cat': {
+          name: 'foo[0].cat',
+          touched: false,
+          error: 'Error C Cat',
+          lastFieldState: undefined
+        },
+        'foo[0].axe': {
+          name: 'foo[0].axe',
+          touched: false,
+          error: 'Error C Axe',
           lastFieldState: undefined
         },
         'foo[3].dog': {

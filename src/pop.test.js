@@ -23,7 +23,7 @@ describe('pop', () => {
         }
       }
     }
-    const result = pop(['foo'], state, { changeValue })
+    const result = pop(['foo'], state, { changeValue, getIn, setIn })
     expect(result).toBeUndefined()
     expect(changeValue).toHaveBeenCalled()
     expect(changeValue).toHaveBeenCalledTimes(1)
@@ -33,71 +33,59 @@ describe('pop', () => {
   })
 
   it('should return undefined if array is undefined', () => {
-    const changeValue = jest.fn()
+    // implementation of changeValue taken directly from Final Form
+    const changeValue = (state, name, mutate) => {
+      const before = getIn(state.formState.values, name)
+      const after = mutate(before)
+      state.formState.values = setIn(state.formState.values, name, after) || {}
+    }
     const state = {
       formState: {
         values: {
-          foo: ['one', 'two']
+          foo: undefined
         }
       },
-      fields: {
-        'foo[0]': {
-          name: 'foo[0]',
-          touched: true,
-          error: 'First Error'
-        },
-        'foo[1]': {
-          name: 'foo[1]',
-          touched: false,
-          error: 'Second Error'
-        }
-      }
+      fields: {}
     }
-    const returnValue = pop(['foo'], state, { changeValue })
-    const op = changeValue.mock.calls[0][2]
+    const returnValue = pop(['foo'], state, { changeValue, getIn, setIn })
     expect(returnValue).toBeUndefined()
-    const result = op(undefined)
+    const result = state.formState.foo
     expect(result).toBeUndefined()
   })
 
   it('should return empty array if array is empty', () => {
-    const changeValue = jest.fn()
+    // implementation of changeValue taken directly from Final Form
+    const changeValue = (state, name, mutate) => {
+      const before = getIn(state.formState.values, name)
+      const after = mutate(before)
+      state.formState.values = setIn(state.formState.values, name, after) || {}
+    }
     const state = {
       formState: {
         values: {
-          foo: ['one', 'two']
+          foo: []
         }
       },
-      fields: {
-        'foo[0]': {
-          name: 'foo[0]',
-          touched: true,
-          error: 'First Error'
-        },
-        'foo[1]': {
-          name: 'foo[1]',
-          touched: false,
-          error: 'Second Error'
-        }
-      }
+      fields: {}
     }
-    const returnValue = pop(['foo'], state, { changeValue })
-    const op = changeValue.mock.calls[0][2]
+    const returnValue = pop(['foo'], state, { changeValue, getIn, setIn })
     expect(returnValue).toBeUndefined()
-    const result = op([])
+    const result = state.formState.values.foo
     expect(Array.isArray(result)).toBe(true)
     expect(result.length).toBe(0)
   })
 
   it('should pop value off the end of array and return it', () => {
-    let result
-    const changeValue = jest.fn((args, state, op) => {
-      result = op(['a', 'b', 'c'])
-    })
+    // implementation of changeValue taken directly from Final Form
+    const changeValue = jest.fn((state, name, mutate) => {
+      const before = getIn(state.formState.values, name)
+      const after = mutate(before)
+      state.formState.values = setIn(state.formState.values, name, after) || {}
+    })  
     const state = {
       formState: {
         values: {
-          foo: ['one', 'two']
+          foo: ['a', 'b', 'c']
         }
       },
       fields: {
@@ -113,7 +101,8 @@ describe('pop', () => {
         }
       }
     }
-    const returnValue = pop(['foo'], state, { changeValue })
+    const returnValue = pop(['foo'], state, { changeValue, getIn, setIn })
+    const result = state.formState.values.foo
     expect(returnValue).toBe('c')
     expect(Array.isArray(result)).toBe(true)
     expect(result).toEqual(['a', 'b'])
@@ -161,7 +150,7 @@ describe('pop', () => {
         }
       }
     }
-    const returnValue = pop(['foo'], state, { changeValue })
+    const returnValue = pop(['foo'], state, { changeValue, getIn, setIn })
     expect(returnValue).toBe('d')
     expect(Array.isArray(state.formState.values.foo)).toBe(true)
     expect(state.formState.values.foo).not.toBe(array) // copied
@@ -238,7 +227,7 @@ describe('pop', () => {
         }
       }
     }
-    const returnValue = pop(['foo[0]'], state, { changeValue })
+    const returnValue = pop(['foo[0]'], state, { changeValue, getIn, setIn })
     expect(returnValue).toBe('d')
     expect(Array.isArray(state.formState.values.foo)).toBe(true)
     expect(state.formState.values.foo).not.toBe(array) // copied

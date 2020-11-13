@@ -46,8 +46,7 @@ describe('remove', () => {
     expect(returnValue).toBeUndefined()
     const op = changeValue.mock.calls[0][2]
     const result = op(undefined)
-    expect(Array.isArray(result)).toBe(true)
-    expect(result.length).toBe(0)
+    expect(result).toBeUndefined()
   })
 
   it('should remove value from the specified index, and return it', () => {
@@ -94,14 +93,6 @@ describe('remove', () => {
           touched: false,
           error: 'B Error'
         },
-        'foo[2]': {
-          name: 'foo[2]',
-          blur: blur2,
-          change: change2,
-          focus: focus2,
-          touched: true,
-          error: 'C Error'
-        },
         'foo[3]': {
           name: 'foo[3]',
           blur: blur3,
@@ -109,6 +100,14 @@ describe('remove', () => {
           focus: focus3,
           touched: false,
           error: 'D Error'
+        },
+        'foo[2]': {
+          name: 'foo[2]',
+          blur: blur2,
+          change: change2,
+          focus: focus2,
+          touched: true,
+          error: 'C Error'
         },
         anotherField: {
           name: 'anotherField',
@@ -135,15 +134,6 @@ describe('remove', () => {
           touched: true,
           error: 'A Error'
         },
-        'foo[1]': {
-          name: 'foo[1]',
-          blur: blur1,
-          change: change1,
-          focus: focus1,
-          touched: true,
-          error: 'C Error',
-          lastFieldState: undefined
-        },
         'foo[2]': {
           name: 'foo[2]',
           blur: blur2,
@@ -151,6 +141,15 @@ describe('remove', () => {
           focus: focus2,
           touched: false,
           error: 'D Error',
+          lastFieldState: undefined
+        },
+        'foo[1]': {
+          name: 'foo[1]',
+          blur: blur1,
+          change: change1,
+          focus: focus1,
+          touched: true,
+          error: 'C Error',
           lastFieldState: undefined
         },
         anotherField: {
@@ -189,6 +188,14 @@ describe('remove', () => {
         }
       },
       fields: {
+        'foo[0][3]': {
+          name: 'foo[0][3]',
+          blur: blur3,
+          change: change3,
+          focus: focus3,
+          touched: false,
+          error: 'D Error'
+        },
         'foo[0][0]': {
           name: 'foo[0][0]',
           blur: blur0,
@@ -213,14 +220,6 @@ describe('remove', () => {
           touched: true,
           error: 'C Error'
         },
-        'foo[0][3]': {
-          name: 'foo[0][3]',
-          blur: blur3,
-          change: change3,
-          focus: focus3,
-          touched: false,
-          error: 'D Error'
-        },
         anotherField: {
           name: 'anotherField',
           touched: false
@@ -242,6 +241,15 @@ describe('remove', () => {
         }
       },
       fields: {
+        'foo[0][2]': {
+          name: 'foo[0][2]',
+          blur: blur2,
+          change: change2,
+          focus: focus2,
+          touched: false,
+          error: 'D Error',
+          lastFieldState: undefined
+        },
         'foo[0][0]': {
           name: 'foo[0][0]',
           blur: blur0,
@@ -259,85 +267,12 @@ describe('remove', () => {
           error: 'C Error',
           lastFieldState: undefined
         },
-        'foo[0][2]': {
-          name: 'foo[0][2]',
-          blur: blur2,
-          change: change2,
-          focus: focus2,
-          touched: false,
-          error: 'D Error',
-          lastFieldState: undefined
-        },
         anotherField: {
           name: 'anotherField',
           touched: false
         }
       }
     })
-  })
-
-  it('should remove value from the specified index, and handle new fields', () => {
-    const array = ['a', { key: 'val' }]
-    const changeValue = jest.fn()
-    const renameField = jest.fn()
-    function blur0() {}
-    function change0() {}
-    function focus0() {}
-    function blur1() {}
-    function change1() {}
-    function focus1() {}
-    function blur2() {}
-    function change2() {}
-    function focus2() {}
-    const state = {
-      formState: {
-        values: {
-          foo: array,
-          anotherField: 42
-        }
-      },
-      fields: {
-        'foo[0]': {
-          name: 'foo[0]',
-          blur: blur0,
-          change: change0,
-          focus: focus0,
-          touched: true,
-          error: 'A Error'
-        },
-        'foo[1]': {
-          name: 'foo[1]',
-          blur: blur1,
-          change: change1,
-          focus: focus1,
-          touched: false,
-          error: 'B Error'
-        },
-        'foo[1].key': {
-          name: 'foo[1].key',
-          blur: blur2,
-          change: change2,
-          focus: focus2,
-          touched: false,
-          error: 'B Error'
-        },
-        anotherField: {
-          name: 'anotherField',
-          touched: false
-        }
-      }
-    }
-    const returnValue = remove(['foo', 0], state, {
-      renameField,
-      changeValue,
-      getIn,
-      setIn
-    })
-    expect(returnValue).toBeUndefined()
-    expect(renameField).toHaveBeenCalledTimes(1)
-    expect(renameField.mock.calls[0][0]).toEqual(state)
-    expect(renameField.mock.calls[0][1]).toEqual('foo[1].key')
-    expect(renameField.mock.calls[0][2]).toEqual('foo[0].key')
   })
 
   it('should remove value from the specified index with submitError if one error in array', () => {
